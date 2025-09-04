@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}تسجيل الدخول{% endblock %}
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-dark text-white">
+                <h3 class="text-center mb-0">تسجيل الدخول</h3>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="id_username" class="form-label">اسم المستخدم</label>
+                        <input type="text" name="username" class="form-control" id="id_username" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_password" class="form-label">كلمة المرور</label>
+                        <input type="password" name="password" class="form-control" id="id_password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">دخول</button>
+                </form>
+            </div>
+            <div class="card-footer text-center">
+                <small>ليس لديك حساب؟ <a href="{% url 'register' %}">أنشئ حساباً جديداً</a></small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
