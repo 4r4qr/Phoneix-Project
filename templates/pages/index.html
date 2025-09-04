@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}الرئيسية - Phoneix{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="text-center my-4">أحدث المقالات</h1>
+    <div class="row">
+        {% for post in posts %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100 card-post">
+                {% if post.image %}
+                    <img src="{{ post.image.url }}" class="card-img-top" alt="{{ post.title }}" style="height: 200px; object-fit: cover;">
+                {% else %}
+                    <img src="{% static 'images/default_post.png' %}" class="card-img-top" alt="Default Image" style="height: 200px; object-fit: cover;">
+                {% endif %}
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">{{ post.title }}</h5>
+                    <p class="card-text">{{ post.content|truncatewords:20 }}</p>
+                    <div class="mt-auto">
+                        <a href="{% url 'post_detail' post.pk %}" class="btn btn-primary">اقرأ المزيد</a>
+                    </div>
+                </div>
+                <div class="card-footer text-muted">
+                    <small>بواسطة: {{ post.author.username }} | {{ post.created_at|date:"d M Y" }}</small>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <p class="text-center">لا توجد مقالات لعرضها حالياً.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
