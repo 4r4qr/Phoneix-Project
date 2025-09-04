@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ post.title }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <!-- Post content-->
+            <article>
+                <!-- Post header-->
+                <header class="mb-4">
+                    <h1 class="fw-bolder mb-1">{{ post.title }}</h1>
+                    <div class="text-muted fst-italic mb-2">نشر بواسطة {{ post.author.username }} في {{ post.created_at|date:"d M Y" }}</div>
+                    {% for tag in post.tags.all %}
+                        <a class="badge bg-secondary text-decoration-none link-light" href="#!">{{ tag.name }}</a>
+                    {% endfor %}
+                </header>
+                <!-- Preview image figure-->
+                {% if post.image %}
+                <figure class="mb-4"><img class="img-fluid rounded" src="{{ post.image.url }}" alt="{{ post.title }}"></figure>
+                {% endif %}
+                <!-- Post content-->
+                <section class="mb-5">
+                    <p class="fs-5 mb-4">{{ post.content|linebreaks }}</p>
+                </section>
+            </article>
+
+            <!-- Like Section -->
+            <section class="mb-5">
+                <button class="btn btn-danger like-btn" data-id="{{ post.id }}" data-action="{% if user in post.likes.all %}un{% endif %}like">
+                    <i class="bi {% if user in post.likes.all %}bi-heart-fill{% else %}bi-heart{% endif %}"></i>
+                    <span class="like-text">{% if user in post.likes.all %}إلغاء الإعجاب{% else %}إعجاب{% endif %}</span>
+                </button>
+                <span class="ms-2" id="likes-count">{{ post.total_likes }}</span> إعجاب(ات)
+            </section>
+
+            <!-- Comments section-->
+            <section class="mb-5">
+                <div class="card bg-light">
+                    <div class="card-body">
+                        <!-- Comment form-->
+                        {% if user.is_authenticated %}
+                        <form class="mb-4" method="post">
+                            {% csrf_token %}
+                            {{ comment_form.as_p }}
+                            <button class="btn btn-primary" type="submit">أضف تعليق</button>
+                        </form>
+                        {% else %}
+                        <p>الرجاء <a href="{% url 'login' %}?next={{ request.path }}">تسجيل الدخول</a> لإضافة تعليق.</p>
+                        {% endif %}
+                            
+                        <!-- Comments -->
+                        {% for comment in comments %}
+                        <div class="d-flex mb-4">
+                            <div class="flex-shrink-0"><img class="rounded-circle" src="https://dummyimage.com/50x50/ced4da/6c757d.jpg" alt="..."></div>
+                            <div class="ms-3">
+                                <div class="fw-bold">{{ comment.author.username }}</div>
+                                {{ comment.text|linebreaks }}
+                            </div>
+                        </div>
+                        {% empty %}
+                        <p>كن أول من يعلق!</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const likeBtn = document.querySelector('.like-btn');
+    if (likeBtn) {
+        likeBtn.addEventListener('click', function() {
+            const postId = this.dataset.id;
+            const action = this.dataset.action;
+            const url = '{% url "like_post" %}';
+            const csrfToken = '{{ csrf_token }}';
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken,
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `id=${postId}&action=${action}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'ok') {
+                    const likesCountSpan = document.getElementById('likes-count');
+                    likesCountSpan.textContent = data.likes_count;
+
+                    const likeTextSpan = this.querySelector('.like-text');
+                    const heartIcon = this.querySelector('i');
+
+                    if (this.dataset.action === 'like') {
+                        this.dataset.action = 'unlike';
+                        likeTextSpan.textContent = 'إلغاء الإعجاب';
+                        heartIcon.classList.remove('bi-heart');
+                        heartIcon.classList.add('bi-heart-fill');
+                    } else {
+                        this.dataset.action = 'like';
+                        likeTextSpan.textContent = 'إعجاب';
+                        heartIcon.classList.remove('bi-heart-fill');
+                        heartIcon.classList.add('bi-heart');
+                    }
+                }
+            });
+        });
+    }
+});
+</script>
+{% endblock %}
