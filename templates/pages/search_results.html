@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block title %}نتائج البحث{% endblock %}
+{% block content %}
+<div class="container">
+    <h1 class="my-4">نتائج البحث عن: "{{ query }}"</h1>
+    {% for post in results %}
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title"><a href="{% url 'post_detail' post.pk %}">{{ post.title }}</a></h5>
+                <p class="card-text">{{ post.content|truncatewords:30 }}</p>
+            </div>
+        </div>
+    {% empty %}
+        <p>لم يتم العثور على نتائج.</p>
+    {% endfor %}
+</div>
+{% endblock %}
