@@ -1,0 +1,14 @@
+/* Add any custom CSS here in the future */
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+main {
+    flex: 1;
+}
+
+.card-footer {
+    background-color: rgba(0, 0, 0, 0.03);
+}
